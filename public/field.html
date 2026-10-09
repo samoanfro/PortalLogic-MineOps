@@ -34,7 +34,8 @@
     </section>
   </main>
   <script>
-    const state={tab:'hazards',bootstrap:null,hazards:[],exams:[],equipment:[],checks:[],shifts:[],audit:[]};
+    const initialTab = new URLSearchParams(location.search).get('tab');
+    const state={tab:['hazards','exams','equipment','shifts','audit'].includes(initialTab)?initialTab:'hazards',bootstrap:null,hazards:[],exams:[],equipment:[],checks:[],shifts:[],audit:[]};
     const today=new Date().toISOString().slice(0,10); document.querySelectorAll('input[type="date"]').forEach(i=>i.value=today);
     const $=id=>document.getElementById(id);
     function pill(value){return `<span class="pill ${String(value||'').toLowerCase()}">${value||'—'}</span>`}
