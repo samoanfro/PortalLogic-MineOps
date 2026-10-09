@@ -8,7 +8,7 @@ This repository now contains the first production backend boundary for MineOps w
 - `migrations/0001_initial.sql` defines the production D1 schema.
 - `config/production-seed.json` contains demo organization/site/users/equipment seed data.
 - `scripts/seed-d1.cjs` generates SQL seed statements for D1.
-- `wrangler.toml` describes the Cloudflare Worker, static assets, D1 database, and evidence bucket bindings.
+- `wrangler.toml` describes the Cloudflare Worker, static assets, and D1 database binding. Evidence/photo storage can be added with R2 after R2 is enabled on the Cloudflare account.
 
 ## Production model
 

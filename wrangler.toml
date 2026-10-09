@@ -11,6 +11,3 @@ binding = "DB"
 database_name = "mineops-production"
 database_id = "6d232140-6224-45de-afec-4bc0bdb10b48"
 
-[[r2_buckets]]
-binding = "EVIDENCE_BUCKET"
-bucket_name = "mineops-evidence"
