@@ -19,7 +19,7 @@ export default {
       if (url.pathname.startsWith("/api/")) {
         return withSecurity(await handleApi(request, env, url));
       }
-      return withSecurity(await env.ASSETS.fetch(request));
+      return withSecurity(await handleAsset(request, env, url));
     } catch (error) {
       if (error && Number.isInteger(error.status)) {
         return withSecurity(json({ error: error.message }, error.status));
@@ -29,6 +29,15 @@ export default {
     }
   }
 };
+
+async function handleAsset(request, env, url) {
+  if (request.method === "GET" && (url.pathname === "/mineops" || url.pathname === "/mineops/")) {
+    const assetUrl = new URL(request.url);
+    assetUrl.pathname = "/mineops/index.html";
+    return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+  }
+  return env.ASSETS.fetch(request);
+}
 
 async function handleApi(request, env, url) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(request) });
