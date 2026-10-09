@@ -1,0 +1,16 @@
+{
+  "name": "mineops-production",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check api/worker.js && node --check mineops-api-client.js && python3 -c \"import sqlite3,pathlib; con=sqlite3.connect(':memory:'); con.executescript(pathlib.Path('migrations/0001_initial.sql').read_text()); print('sqlite schema ok')\"",
+    "seed:sql": "node scripts/seed-d1.cjs",
+    "d1:migrate": "wrangler d1 execute mineops-production --file migrations/0001_initial.sql",
+    "d1:seed": "node scripts/seed-d1.cjs > /tmp/mineops-seed.sql && wrangler d1 execute mineops-production --file /tmp/mineops-seed.sql",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}

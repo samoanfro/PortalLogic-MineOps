@@ -1,0 +1,24 @@
+{
+  "organization": {
+    "id": "org_demo",
+    "name": "Portal Logic Demo Operations",
+    "slug": "portal-logic-demo"
+  },
+  "site": {
+    "id": "site_demo_mine",
+    "name": "Demo Mine",
+    "mshaId": "DEMO-000000",
+    "operator": "Portal Logic Group",
+    "timezone": "America/Los_Angeles"
+  },
+  "users": [
+    { "id": "user_admin", "email": "admin@example.com", "name": "MineOps Admin", "role": "admin" },
+    { "id": "user_supervisor", "email": "supervisor@example.com", "name": "Shift Supervisor", "role": "supervisor" },
+    { "id": "user_mechanic", "email": "mechanic@example.com", "name": "Maintenance Lead", "role": "mechanic" }
+  ],
+  "equipment": [
+    { "id": "eq_loader_01", "assetTag": "LOADER-01", "name": "Loader 01", "category": "Loader", "checkIntervalDays": 1, "maintenanceIntervalDays": 30 },
+    { "id": "eq_haul_07", "assetTag": "HAUL-07", "name": "Haul Truck 07", "category": "Haul Truck", "checkIntervalDays": 1, "maintenanceIntervalDays": 21 },
+    { "id": "eq_jumbo_02", "assetTag": "JUMBO-02", "name": "Drill Jumbo 02", "category": "Drill", "checkIntervalDays": 1, "maintenanceIntervalDays": 14 }
+  ]
+}
