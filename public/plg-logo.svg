@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" role="img" aria-labelledby="title desc">
+  <title id="title">Portal Logic Group Logo</title>
+  <desc id="desc">Portal Logic Group blue portal mark with wordmark.</desc>
+  <rect width="720" height="220" fill="#0b1f3b"/>
+  <g transform="translate(54 42)">
+    <path d="M74 0 148 42v85l-74 43L0 127V42L74 0Z" fill="#007aff"/>
+    <path d="M74 0 148 42v85l-42 24V65L74 47V0Z" fill="#071c36"/>
+    <path d="M0 42 74 0v47L28 73v87L0 144V42Z" fill="#0066d8"/>
+    <path d="M28 73 74 47l46 26-46 27-46-27Z" fill="#3ec6ff"/>
+    <path d="M74 100 120 73v54l-46 27v-54Z" fill="#e5e7eb"/>
+  </g>
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <text x="244" y="99" fill="#e5e7eb" font-size="49" font-weight="850" letter-spacing=".5">PORTAL LOGIC</text>
+    <text x="247" y="143" fill="#007aff" font-size="31" font-weight="850" letter-spacing="19">GROUP</text>
+    <path d="M247 165h328" stroke="#e5e7eb" stroke-opacity=".55" stroke-width="1.5"/>
+    <text x="247" y="190" fill="#e5e7eb" font-size="13" font-weight="500" letter-spacing="10">PEOPLE | DATA | REAL RESULTS</text>
+  </g>
+</svg>

@@ -1,7 +1,7 @@
 name = "mineops-production"
 main = "api/worker.js"
 compatibility_date = "2026-10-01"
-assets = { directory = ".", binding = "ASSETS" }
+assets = { directory = "public", binding = "ASSETS" }
 
 [vars]
 ENVIRONMENT = "production"
@@ -9,7 +9,7 @@ ENVIRONMENT = "production"
 [[d1_databases]]
 binding = "DB"
 database_name = "mineops-production"
-database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"
+database_id = "6d232140-6224-45de-afec-4bc0bdb10b48"
 
 [[r2_buckets]]
 binding = "EVIDENCE_BUCKET"

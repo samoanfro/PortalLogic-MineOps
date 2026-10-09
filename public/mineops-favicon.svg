@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MineOps">
+  <rect width="64" height="64" rx="14" fill="#1f2937"/>
+  <path d="M8 48 31 16l12 16 8-12 14 28H53L43 28 31 48h-9l14-20-5-7-20 27H8Z" fill="#ff6a00"/>
+  <path d="M15 48h18l10-16 10 16H42l-9-10-7 10H15Z" fill="#f9fafb"/>
+</svg>
