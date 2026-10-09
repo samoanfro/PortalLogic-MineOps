@@ -46,9 +46,19 @@ async function handleAsset(request, env, url) {
   if (request.method === "GET" && prettyRoutes[url.pathname]) {
     const assetUrl = new URL(request.url);
     assetUrl.pathname = prettyRoutes[url.pathname];
-    return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
+    return noStoreAsset(await env.ASSETS.fetch(new Request(assetUrl.toString(), request)));
   }
-  return env.ASSETS.fetch(request);
+  const assetResponse = await env.ASSETS.fetch(request);
+  if (url.pathname === "/mineops-production-guard.js" || url.pathname.startsWith("/mineops/")) {
+    return noStoreAsset(assetResponse);
+  }
+  return assetResponse;
+}
+
+function noStoreAsset(response) {
+  const next = new Response(response.body, response);
+  next.headers.set("Cache-Control", "no-store, max-age=0");
+  return next;
 }
 
 async function handleApi(request, env, url) {
