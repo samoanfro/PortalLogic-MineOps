@@ -36,6 +36,10 @@ async function handleAsset(request, env, url) {
     "/login/": "/login.html",
     "/walkthrough": "/walkthrough.html",
     "/walkthrough/": "/walkthrough.html",
+    "/field": "/field.html",
+    "/field/": "/field.html",
+    "/app": "/field.html",
+    "/app/": "/field.html",
     "/mineops": "/mineops/index.html",
     "/mineops/": "/mineops/index.html"
   };
@@ -70,6 +74,8 @@ async function handleApi(request, env, url) {
       return json({ hazard: await createHazard(request, env, actor) }, 201);
     case "GET /api/equipment":
       return json({ equipment: await listRows(env, actor, "equipment", "asset_tag ASC") });
+    case "GET /api/equipment-checks":
+      return json({ equipmentChecks: await listRows(env, actor, "equipment_checks", "check_date DESC, created_at DESC") });
     case "POST /api/equipment-checks":
       return json({ equipmentCheck: await createEquipmentCheck(request, env, actor) }, 201);
     case "GET /api/shift-logs":

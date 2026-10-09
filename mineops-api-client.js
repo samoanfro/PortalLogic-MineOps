@@ -101,9 +101,16 @@
   }
 
   window.MineOpsApi = {
+    request,
     bootstrap,
     syncQueue,
     queue: readQueue,
+    listWorkplaceExams: () => request("/api/workplace-exams", { method: "GET" }),
+    listHazards: () => request("/api/hazards", { method: "GET" }),
+    listEquipment: () => request("/api/equipment", { method: "GET" }),
+    listEquipmentChecks: () => request("/api/equipment-checks", { method: "GET" }),
+    listShiftLogs: () => request("/api/shift-logs", { method: "GET" }),
+    listAuditEvents: () => request("/api/audit-events", { method: "GET" }),
     createWorkplaceExam: (payload) => mutate("/api/workplace-exams", payload),
     createHazard: (payload) => mutate("/api/hazards", payload),
     createEquipmentCheck: (payload) => mutate("/api/equipment-checks", payload),

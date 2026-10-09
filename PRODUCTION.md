@@ -99,3 +99,7 @@ The deployed `mineops/index.html` is currently a static prototype. The next code
 5. Keep prototype/demo data only as an explicit demo mode.
 
 That lets the current UI keep working while production data becomes real.
+
+## D1-backed field UI
+
+The production field workflow is available at `/field` or `/app`. It reads hazards, workplace exams, equipment checks, shift logs, and audit events from D1, and its forms write back through the Worker API. The existing `/mineops/` route remains the static prototype while screens are migrated.
