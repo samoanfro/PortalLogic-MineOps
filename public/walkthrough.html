@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MineOps Production Walkthrough</title>
+  <script src="/mineops-api-client.js"></script>
+  <style>
+    :root{color-scheme:dark;--orange:#ff6a00;--green:#22c55e;--line:rgba(229,231,235,.16);--muted:#9ca3af}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(145deg,#071424,#111827 55%,#16181d);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f9fafb}.wrap{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:34px 0 48px}header{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:28px}.eyebrow{color:#3ec6ff;font-size:12px;font-weight:850;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}h1{margin:0;font-size:clamp(34px,5vw,58px);line-height:1}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#f9fafb;text-decoration:none;font-weight:800;font-size:13px}.btn.primary{background:var(--orange);border-color:var(--orange);color:#111827}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.card{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.06);padding:20px}.status{display:flex;align-items:center;gap:10px;font-weight:850}.dot{width:12px;height:12px;border-radius:999px;background:#ef4444;box-shadow:0 0 0 5px rgba(239,68,68,.12)}.ok .dot{background:var(--green);box-shadow:0 0 0 5px rgba(34,197,94,.14)}.meta{margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{border-top:1px solid var(--line);padding-top:12px}.k{color:var(--muted);font-size:11px;letter-spacing:.14em;text-transform:uppercase}.v{margin-top:6px;font-size:24px;font-weight:900}.list{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:8px}.list li{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:rgba(0,0,0,.16)}label{display:block;margin:12px 0 6px;color:#d1d5db;font-size:13px;font-weight:750}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.22);color:#f9fafb;padding:10px 12px;font:inherit}textarea{min-height:76px;resize:vertical}.msg{margin-top:12px;color:#a7f3d0;font-size:13px;min-height:18px}pre{white-space:pre-wrap;word-break:break-word;color:#d1d5db;font-size:12px;line-height:1.45}@media(max-width:880px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.meta{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header><div><div class="eyebrow">MineOps production walkthrough</div><h1>Live D1 backend check.</h1></div><div class="actions"><a class="btn" href="/mineops/">Open MineOps app</a><a class="btn" href="/login.html">Switch user</a><button class="btn" id="refresh">Refresh</button></div></header>
+    <section class="grid">
+      <div class="card"><div id="status" class="status"><span class="dot"></span><span>Checking production API...</span></div><div class="meta"><div class="metric"><div class="k">Site</div><div class="v" id="site">—</div></div><div class="metric"><div class="k">Equipment</div><div class="v" id="equipment">—</div></div><div class="metric"><div class="k">Open hazards</div><div class="v" id="hazards">—</div></div></div><h2>Seeded equipment</h2><ul class="list" id="equipment-list"></ul><h2>Raw bootstrap</h2><pre id="raw">Waiting...</pre></div>
+      <div class="card"><h2>Create a live hazard</h2><form id="hazard-form"><label>Title</label><input name="title" value="Walkthrough hazard check" required><label>Location</label><input name="location" value="Demo heading"><label>Severity</label><select name="severity"><option>low</option><option selected>medium</option><option>high</option><option>critical</option></select><label>Description</label><textarea name="description">Created from the MineOps production walkthrough.</textarea><button class="btn primary" type="submit">Save hazard to D1</button><div class="msg" id="save-msg"></div></form></div>
+    </section>
+  </div>
+  <script>
+    async function load(){
+      const status=document.getElementById('status');
+      try{
+        const data=await window.MineOpsApi.bootstrap();
+        status.classList.add('ok'); status.querySelector('span:last-child').textContent='Connected to production API and D1';
+        document.getElementById('site').textContent=data.site?.name||'—';
+        document.getElementById('equipment').textContent=data.equipment?.length ?? 0;
+        document.getElementById('hazards').textContent=data.openHazards?.length ?? 0;
+        document.getElementById('equipment-list').innerHTML=(data.equipment||[]).map(eq=>`<li><span>${eq.assetTag}</span><strong>${eq.status}</strong></li>`).join('');
+        document.getElementById('raw').textContent=JSON.stringify(data,null,2);
+      }catch(error){
+        status.classList.remove('ok'); status.querySelector('span:last-child').textContent='Not signed in or API unavailable';
+        document.getElementById('raw').textContent=error.message+'\n\nGo to /login.html and sign in with the setup code.';
+      }
+    }
+    document.getElementById('refresh').addEventListener('click',load);
+    document.getElementById('hazard-form').addEventListener('submit',async(event)=>{
+      event.preventDefault();
+      const msg=document.getElementById('save-msg'); msg.textContent='Saving...';
+      const f=new FormData(event.currentTarget);
+      const result=await window.MineOpsApi.createHazard({title:f.get('title'),location:f.get('location'),severity:f.get('severity'),description:f.get('description')});
+      msg.textContent=result.queued?'Queued locally; will sync when online.':'Saved to D1.';
+      await load();
+    });
+    load();
+  </script>
+</body>
+</html>

@@ -9,7 +9,7 @@ const SECURITY_HEADERS = {
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
 };
 
-const PUBLIC_ROUTES = new Set(["/api/health"]);
+const PUBLIC_ROUTES = new Set(["/api/health", "/api/session"]);
 const ROLES = new Set(["owner", "admin", "manager", "supervisor", "mechanic", "crew", "readonly"]);
 
 export default {
@@ -31,9 +31,17 @@ export default {
 };
 
 async function handleAsset(request, env, url) {
-  if (request.method === "GET" && (url.pathname === "/mineops" || url.pathname === "/mineops/")) {
+  const prettyRoutes = {
+    "/login": "/login.html",
+    "/login/": "/login.html",
+    "/walkthrough": "/walkthrough.html",
+    "/walkthrough/": "/walkthrough.html",
+    "/mineops": "/mineops/index.html",
+    "/mineops/": "/mineops/index.html"
+  };
+  if (request.method === "GET" && prettyRoutes[url.pathname]) {
     const assetUrl = new URL(request.url);
-    assetUrl.pathname = "/mineops/index.html";
+    assetUrl.pathname = prettyRoutes[url.pathname];
     return env.ASSETS.fetch(new Request(assetUrl.toString(), request));
   }
   return env.ASSETS.fetch(request);
@@ -42,6 +50,8 @@ async function handleAsset(request, env, url) {
 async function handleApi(request, env, url) {
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(request) });
   if (url.pathname === "/api/health") return json({ ok: true, service: "mineops", time: new Date().toISOString() });
+  if (url.pathname === "/api/session" && request.method === "POST") return createSession(request, env);
+  if (url.pathname === "/api/session" && request.method === "DELETE") return deleteSession(request, env);
 
   const actor = await authenticate(request, env);
   if (!actor) return json({ error: "Unauthorized" }, 401);
@@ -82,14 +92,80 @@ async function authenticate(request, env) {
   const userId = request.headers.get("X-MineOps-User") || "user_admin";
 
   const apiKey = request.headers.get("X-MineOps-Key") || bearerToken(request);
-  if (env.MINEOPS_API_KEY && apiKey !== env.MINEOPS_API_KEY) return null;
+  if (env.MINEOPS_API_KEY && apiKey === env.MINEOPS_API_KEY) {
+    const user = await findUser(env, orgId, userId);
+    return user ? { ...user, orgId, siteId } : null;
+  }
 
+  const sessionId = cookie(request, "mineops_session");
+  if (!sessionId) return null;
+  const session = await env.DB.prepare(
+    `SELECT s.org_id, s.site_id, s.user_id, u.email, u.name, u.role, u.active
+     FROM user_sessions s
+     JOIN users u ON u.id = s.user_id AND u.org_id = s.org_id
+     WHERE s.id = ? AND s.expires_at > ? AND u.active = 1`
+  ).bind(sessionId, now()).first();
+  if (!session || !ROLES.has(session.role)) return null;
+  return {
+    id: session.user_id,
+    org_id: session.org_id,
+    email: session.email,
+    name: session.name,
+    role: session.role,
+    active: session.active,
+    orgId: session.org_id,
+    siteId: session.site_id
+  };
+}
+
+async function findUser(env, orgId, userId) {
   const user = await env.DB.prepare(
     "SELECT id, org_id, email, name, role, active FROM users WHERE org_id = ? AND id = ? AND active = 1"
   ).bind(orgId, userId).first();
+  return user && ROLES.has(user.role) ? user : null;
+}
 
-  if (!user || !ROLES.has(user.role)) return null;
-  return { ...user, orgId, siteId };
+async function createSession(request, env) {
+  const body = await readJson(request);
+  const setupCode = requiredString(body.setupCode, "setupCode");
+  const expected = env.MINEOPS_SETUP_CODE || env.MINEOPS_API_KEY;
+  if (!expected || setupCode !== expected) return json({ error: "Invalid setup code" }, 401);
+
+  const orgId = body.orgId || "org_demo";
+  const siteId = body.siteId || "site_demo_mine";
+  const userId = body.userId || "user_admin";
+  const user = await findUser(env, orgId, userId);
+  if (!user) return json({ error: "User not found" }, 404);
+
+  const sessionId = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 12).toISOString();
+  await env.DB.prepare("INSERT INTO user_sessions (id, org_id, site_id, user_id, expires_at) VALUES (?, ?, ?, ?, ?)")
+    .bind(sessionId, orgId, siteId, userId, expiresAt).run();
+
+  const response = json({ ok: true, user: mapRow(user), expiresAt });
+  response.headers.append("Set-Cookie", sessionCookie(sessionId, expiresAt));
+  return response;
+}
+
+async function deleteSession(request, env) {
+  const sessionId = cookie(request, "mineops_session");
+  if (sessionId) await env.DB.prepare("DELETE FROM user_sessions WHERE id = ?").bind(sessionId).run();
+  const response = json({ ok: true });
+  response.headers.append("Set-Cookie", "mineops_session=; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=0");
+  return response;
+}
+
+function cookie(request, name) {
+  const header = request.headers.get("Cookie") || "";
+  for (const part of header.split(";")) {
+    const [rawKey, ...rawValue] = part.trim().split("=");
+    if (rawKey === name) return decodeURIComponent(rawValue.join("="));
+  }
+  return "";
+}
+
+function sessionCookie(sessionId, expiresAt) {
+  return `mineops_session=${encodeURIComponent(sessionId)}; Path=/; HttpOnly; SameSite=Lax; Secure; Expires=${new Date(expiresAt).toUTCString()}`;
 }
 
 function bearerToken(request) {

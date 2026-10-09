@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MineOps Sign In</title>
+  <style>
+    :root{color-scheme:dark;--orange:#ff6a00;--ink:#111827;--line:rgba(229,231,235,.16)}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 20% 10%,rgba(0,122,255,.28),transparent 34rem),linear-gradient(145deg,#071424,#111827 55%,#16181d);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f9fafb}.card{width:min(440px,calc(100% - 32px));border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.07);box-shadow:0 28px 80px rgba(0,0,0,.34);padding:28px}.brand{display:flex;align-items:center;gap:14px;margin-bottom:24px}.mark{width:52px;height:52px;border-radius:12px;background:#1f2937;padding:7px}.title{font-size:30px;font-weight:900}.title span{color:var(--orange)}.sub{margin-top:4px;color:#aeb7c2;font-size:12px;letter-spacing:.18em;text-transform:uppercase}label{display:block;margin:18px 0 8px;color:#d1d5db;font-size:13px;font-weight:750}input,select{width:100%;height:46px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.22);color:#f9fafb;padding:0 12px;font:inherit}button{width:100%;height:50px;margin-top:22px;border:0;border-radius:10px;background:var(--orange);color:#111827;font-weight:900;font-size:15px;cursor:pointer}.msg{min-height:22px;margin-top:14px;color:#fca5a5;font-size:13px;line-height:1.35}.note{margin-top:18px;color:#9ca3af;font-size:12px;line-height:1.45}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 48 29 16l12 16 8-12 14 28H51L41 28 29 48h-9l14-20-5-7-20 27H6Z" fill="#ff6a00"/><path d="M13 48h18l10-16 10 16H40l-9-10-7 10H13Z" fill="#f9fafb"/></svg><div><div class="title">Mine<span>Ops</span></div><div class="sub">Production sign in</div></div></div>
+    <form id="login-form">
+      <label for="setupCode">Setup code</label>
+      <input id="setupCode" name="setupCode" type="password" autocomplete="current-password" required>
+      <label for="userId">Walkthrough user</label>
+      <select id="userId" name="userId">
+        <option value="user_admin">MineOps Admin</option>
+        <option value="user_supervisor">Shift Supervisor</option>
+        <option value="user_mechanic">Maintenance Lead</option>
+      </select>
+      <button type="submit">Enter MineOps</button>
+      <div class="msg" id="msg"></div>
+      <p class="note">This creates a secure session cookie for the production API. No API secret is stored in the browser.</p>
+    </form>
+  </main>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const msg = document.getElementById('msg');
+      msg.textContent = 'Signing in...';
+      const form = new FormData(event.currentTarget);
+      const response = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ setupCode: form.get('setupCode'), userId: form.get('userId') })
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) { msg.textContent = body.error || 'Sign in failed'; return; }
+      location.href = '/walkthrough.html';
+    });
+  </script>
+</body>
+</html>
