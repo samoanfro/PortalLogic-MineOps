@@ -59,7 +59,7 @@
 
   function detectFragileProductionScreen() {
     const bodyText = normalizedText(document.body);
-    if (bodyText.includes("TODAY • 147 ENTRIES") || bodyText.includes("NEW PRODUCTION LOG")) {
+    if ((bodyText.includes("TODAY") && bodyText.includes("ENTRIES") && bodyText.includes("PL-0517")) || bodyText.includes("NEW PRODUCTION LOG")) {
       go("/field?tab=shifts");
     }
   }
