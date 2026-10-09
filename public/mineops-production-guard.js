@@ -52,7 +52,7 @@
     const notice = document.createElement("a");
     notice.id = "mineops-production-bridge";
     notice.href = "/field";
-    notice.textContent = "D1 Production Field App";
+    notice.textContent = "MineOps Field App";
     notice.style.cssText = "position:fixed;right:14px;top:14px;z-index:2147483647;background:#ff6a00;color:#111827;border-radius:999px;padding:10px 13px;font:800 12px/1 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.28);letter-spacing:.02em";
     root.appendChild(notice);
   }
